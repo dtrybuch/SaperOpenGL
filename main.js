@@ -6,11 +6,14 @@ class Point{
     id;
     countOfBomb;
     isBomb;
+    isShown;
 }
+var objects = [];
+var lost = false;
 
-var xCount = 5;
-var yCount = 5;
-var countOfBombs = 5;
+var xCount = 3;
+var yCount = 3;
+var countOfBombs = 0;
 var map = new Array(xCount);
 for (var i = 0; i < map.length; i++) {
     map[i] = new Array(yCount);
@@ -33,10 +36,12 @@ function init() {
         {
             map[i][j] = new Point();
             map[i][j].countOfBomb = 0;
+            map[i][j].isShown = false;
+            map[i][j].isBomb = false;
         }
     }
 
-    while(countOfBombs >= 0)
+    while(countOfBombs > 0)
     {
         let i = getRandomInt(0, xCount );
         let j = getRandomInt(0, yCount )
@@ -188,6 +193,7 @@ function init() {
             mesh.position.x = distance * i + offset;
             mesh.position.y = distance * j + yOffset;
             scene.add(mesh);
+            objects.push(mesh);
         }
     };
 
@@ -202,7 +208,15 @@ function animate() {
 
     requestAnimationFrame( animate );
     renderer.render( scene, camera );
-
+    if(!AnyObjectLeft())
+    {
+        var geometry = new THREE.PlaneGeometry(10, 2);
+        let materialWin = new THREE.MeshBasicMaterial( {map: getTexture("win")});
+        var mesh  = new THREE.Mesh(geometry, materialWin);
+        mesh.position.x = 2;
+        scene.add(mesh);
+        ShowAllValues();
+    }
 }
 document.addEventListener( 'mousedown', onDocumentMouseDown, false );
 
@@ -210,6 +224,7 @@ var raycaster = new THREE.Raycaster(); // create once
 var mouse = new THREE.Vector2(); // create once
 
 function onDocumentMouseDown( event ) {
+    if(lost) return;
     mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
 
@@ -221,7 +236,6 @@ function onDocumentMouseDown( event ) {
     {
         var faceIndex = intersects[0].faceIndex;
         var obj = intersects[0].object;
-        let material;
         if(event.button == 0)
         {
             let mapObject;
@@ -230,32 +244,23 @@ function onDocumentMouseDown( event ) {
                     if(map[i][j].id == obj.geometry.uuid)
                     {
                         mapObject = map[i][j];
+                        map[i][j].isShown = true;
                         break;
                     }
                 }
             };
-            if(mapObject.countOfBomb == 0)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture0")});
-            if(mapObject.countOfBomb == 1)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture1")});
-            if(mapObject.countOfBomb == 2)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture2")});
-            if(mapObject.countOfBomb == 3)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture3")});
-            if(mapObject.countOfBomb == 4)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture4")});
-            if(mapObject.countOfBomb == 5)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture5")});
-            if(mapObject.countOfBomb == 6)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture6")});
-            if(mapObject.countOfBomb == 7)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture7")});
-            if(mapObject.countOfBomb == 8)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture8")});
-            if(mapObject.countOfBomb == 9)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture9")});
+            let material = GetRightMaterial(mapObject);
             if(mapObject.isBomb == true)
-                material = new THREE.MeshBasicMaterial( {map: getTexture("texture10")});
+            {
+                var geometry = new THREE.PlaneGeometry(10, 2);
+                let materialLost = new THREE.MeshBasicMaterial( {map: getTexture("lost")});
+                var mesh  = new THREE.Mesh(geometry, materialLost);
+                mesh.position.x = 2;
+                scene.add(mesh);
+                lost = true;
+                ShowAllValues();
+            }
+
             obj.material = material;
         }
         if(event.button == 2)
@@ -281,5 +286,64 @@ function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function GetRightMaterial(mapObject)
+{
+    var material;
+    if(mapObject.countOfBomb == 0)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture0")});
+    if(mapObject.countOfBomb == 1)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture1")});
+    if(mapObject.countOfBomb == 2)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture2")});
+    if(mapObject.countOfBomb == 3)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture3")});
+    if(mapObject.countOfBomb == 4)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture4")});
+    if(mapObject.countOfBomb == 5)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture5")});
+    if(mapObject.countOfBomb == 6)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture6")});
+    if(mapObject.countOfBomb == 7)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture7")});
+    if(mapObject.countOfBomb == 8)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture8")});
+    if(mapObject.countOfBomb == 9)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture9")});
+    if(mapObject.isBomb == true)
+        material = new THREE.MeshBasicMaterial( {map: getTexture("texture10")});
+    return material;
+}
+function ShowAllValues()
+{
+    for(var i = 0; i < xCount; i++)
+    {
+        for(var j = 0; j < yCount; j++)
+        {
+            let mesh = objects.filter(object => object.geometry.uuid == map[i][j].id)[0]
+            let material = GetRightMaterial(map[i][j]);
+            mesh.material = material;
+        }
+    }
+}
+
+function AnyObjectLeft()
+{
+    let isAnyLeft = false;
+    for(var i = 0; i < xCount; i++)
+    {
+        for(var j = 0; j < yCount; j++)
+        {
+            if(map[i][j].isBomb == false && map[i][j].isShown == false)
+            {
+                isAnyLeft = true;
+                break;
+            }
+        }
+        if(isAnyLeft == true)
+            break;
+    }
+    return isAnyLeft;
 }
         
