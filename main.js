@@ -7,13 +7,14 @@ class Point{
     countOfBomb;
     isBomb;
     isShown;
+    isFlag;
 }
 var objects = [];
 var lost = false;
 
-var xCount = 3;
-var yCount = 3;
-var countOfBombs = 0;
+var xCount = 5;
+var yCount = 5;
+var countOfBombs = 1;
 var map = new Array(xCount);
 for (var i = 0; i < map.length; i++) {
     map[i] = new Array(yCount);
@@ -38,6 +39,7 @@ function init() {
             map[i][j].countOfBomb = 0;
             map[i][j].isShown = false;
             map[i][j].isBomb = false;
+            map[i][j].isFlag = false;
         }
     }
 
@@ -51,11 +53,6 @@ function init() {
             countOfBombs--;
         }
     }
-    
-    // for(var j = 0; j < yCount - 2; j++)
-    // {
-    //     map[0][j].isBomb = true;
-    // }
 
     //górny brzeg
     if(map[0][1].isBomb == true)
@@ -236,19 +233,25 @@ function onDocumentMouseDown( event ) {
     {
         var faceIndex = intersects[0].faceIndex;
         var obj = intersects[0].object;
+        let mapObject;
+        for(var i = 0; i < xCount; i++){
+            for(var j = 0; j < yCount; j++){
+                if(map[i][j].id == obj.geometry.uuid)
+                {
+                    mapObject = map[i][j];
+                    break;
+                }
+            }
+        };
+        if(mapObject.isFlag == true)
+        {
+            obj.material = GetMaterial("texture9");
+            mapObject.isFlag = false;
+            return;
+        }
         if(event.button == 0)
         {
-            let mapObject;
-            for(var i = 0; i < xCount; i++){
-                for(var j = 0; j < yCount; j++){
-                    if(map[i][j].id == obj.geometry.uuid)
-                    {
-                        mapObject = map[i][j];
-                        map[i][j].isShown = true;
-                        break;
-                    }
-                }
-            };
+            mapObject.isShown = true;
             let material = GetRightMaterial(mapObject);
             if(mapObject.isBomb == true)
             {
@@ -264,7 +267,10 @@ function onDocumentMouseDown( event ) {
             obj.material = material;
         }
         if(event.button == 2)
+        {
+            mapObject.isFlag = true;
             obj.material = GetMaterial("texture11");
+        }
     
     }
 }
@@ -335,7 +341,7 @@ function AnyObjectLeft()
     {
         for(var j = 0; j < yCount; j++)
         {
-            if(map[i][j].isBomb == false && map[i][j].isShown == false)
+            if(map[i][j].isBomb == false && (map[i][j].isShown == false || map[i][j].isFlag == true))
             {
                 isAnyLeft = true;
                 break;
