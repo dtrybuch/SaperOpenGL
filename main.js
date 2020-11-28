@@ -12,9 +12,9 @@ class Point{
 var objects = [];
 var lost = false;
 
-var xCount = 5;
-var yCount = 5;
-var countOfBombs = 1;
+var xCount = 10;
+var yCount = 10;
+var countOfBombs;
 var map = new Array(xCount);
 for (var i = 0; i < map.length; i++) {
     map[i] = new Array(yCount);
@@ -22,13 +22,20 @@ for (var i = 0; i < map.length; i++) {
 
 var camera, scene, renderer;
 
+camera = new THREE.PerspectiveCamera( 200, window.innerWidth / window.innerHeight, 1, 1000 );
+camera.position.z = 5;
+
+scene = new THREE.Scene();
+
+renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setPixelRatio( window.devicePixelRatio );
+renderer.setSize( window.innerWidth, window.innerHeight );
+document.body.appendChild( renderer.domElement );
+
 init();
 animate();
 function init() {
-    camera = new THREE.PerspectiveCamera( 200, window.innerWidth / window.innerHeight, 1, 1000 );
-    camera.position.z = 5;
-    
-    scene = new THREE.Scene();
+    countOfBombs = 10;
     const texture = getTexture("texture9");
     var distance = 1.1;
     for(var i = 0; i < xCount; i++)
@@ -179,7 +186,7 @@ function init() {
         }
     }
     //initial offset so does not start in middle.
-    var offset = 0;
+    var offset = -1.5;
     var yOffset = -20;
     for(var i = 0; i < xCount; i++){
         for(var j = 0; j < yCount; j++){
@@ -193,11 +200,6 @@ function init() {
             objects.push(mesh);
         }
     };
-
-    renderer = new THREE.WebGLRenderer( { antialias: true } );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
 
 }
 
@@ -222,8 +224,8 @@ var mouse = new THREE.Vector2(); // create once
 
 function onDocumentMouseDown( event ) {
     if(lost) return;
-    mouse.x = ( event.clientX / renderer.domElement.clientWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / renderer.domElement.clientHeight ) * 2 + 1;
+    mouse.x = ( (event.clientX  - 3)/ renderer.domElement.clientWidth ) * 2 - 1;
+    mouse.y = - ( (event.clientY - 75) / renderer.domElement.clientHeight ) * 2 + 1;
 
     raycaster.setFromCamera( mouse, camera );
 
@@ -351,5 +353,12 @@ function AnyObjectLeft()
             break;
     }
     return isAnyLeft;
+}
+function restartGame()
+{
+    scene.remove.apply(scene, scene.children);
+    lost = false;
+    init();
+    animate();
 }
         
