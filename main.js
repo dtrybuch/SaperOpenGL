@@ -14,16 +14,16 @@ var lost = false;
 
 var xCount = 10;
 var yCount = 10;
-var countOfBombs;
+var countOfBombs = 10;
 var map = new Array(xCount);
 for (var i = 0; i < map.length; i++) {
     map[i] = new Array(yCount);
-  }
+}
 
 var camera, scene, renderer;
 
 camera = new THREE.PerspectiveCamera( 200, window.innerWidth / window.innerHeight, 1, 1000 );
-camera.position.z = 5;
+camera.position.z = 3;
 
 scene = new THREE.Scene();
 
@@ -32,10 +32,7 @@ renderer.setPixelRatio( window.devicePixelRatio );
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-init();
-animate();
 function init() {
-    countOfBombs = 10;
     const texture = getTexture("texture9");
     var distance = 1.1;
     for(var i = 0; i < xCount; i++)
@@ -49,152 +46,30 @@ function init() {
             map[i][j].isFlag = false;
         }
     }
-
-    while(countOfBombs > 0)
+    var tmpCountofBombs = countOfBombs;
+    while(tmpCountofBombs > 0)
     {
         let i = getRandomInt(0, xCount );
         let j = getRandomInt(0, yCount )
         if(map[i][j].isBomb != true)
         {
             map[i][j].isBomb = true;
-            countOfBombs--;
+            tmpCountofBombs--;
         }
     }
 
-    //górny brzeg
-    if(map[0][1].isBomb == true)
-        map[0][0].countOfBomb++;
-    if(map[1][1].isBomb == true)
-        map[0][0].countOfBomb++;
-    if(map[1][0].isBomb == true)
-        map[0][0].countOfBomb++;
-
-    for(var i = 1; i < xCount - 1; i++)
-    {
-        if(map[i - 1][0].isBomb == true)
-            map[i][0].countOfBomb++;
-        if(map[i - 1][1].isBomb == true)
-            map[i][0].countOfBomb++;
-        if(map[i][1].isBomb == true)
-            map[i][0].countOfBomb++;
-        if(map[i + 1][1].isBomb == true)
-            map[i][0].countOfBomb++;
-        if(map[i + 1][0].isBomb == true)
-            map[i][0].countOfBomb++;
-    }
-    if(map[xCount - 2][0].isBomb == true)
-        map[xCount - 1][0].countOfBomb++;
-    if(map[xCount - 2][1].isBomb == true)
-        map[xCount - 1][0].countOfBomb++;
-    if(map[xCount - 1][1].isBomb == true)
-        map[xCount - 1][0].countOfBomb++;
-
-    // brzeg prawy
-    for(var j = 1; j < yCount - 1; j++)
-    {
-        if(map[0][j - 1].isBomb == true)
-            map[0][j].countOfBomb++;
-        if(map[1][j - 1].isBomb == true)
-            map[0][j].countOfBomb++;
-        if(map[1][j].isBomb == true)
-            map[0][j].countOfBomb++;
-        if(map[1][j + 1].isBomb == true)
-            map[0][j].countOfBomb++;
-        if(map[0][j + 1].isBomb == true)
-            map[0][j].countOfBomb++;
-    }
-    //lewy brzeg
-    for(var j = 1; j < yCount - 1; j++)
-    {
-        if(map[xCount - 1][j - 1].isBomb == true)
-            map[xCount - 1][j].countOfBomb++;
-        if(map[xCount - 2][j - 1].isBomb == true)
-            map[xCount - 1][j].countOfBomb++;
-        if(map[xCount - 2][j].isBomb == true)
-            map[xCount - 1][j].countOfBomb++;
-        if(map[xCount - 2][j + 1].isBomb == true)
-            map[xCount - 1][j].countOfBomb++;
-        if(map[xCount - 1][j + 1].isBomb == true)
-            map[xCount - 1][j].countOfBomb++;
-    }
-
-    //dolny brzeg
-    if(map[xCount - 1][yCount - 2].isBomb == true)
-        map[xCount - 1][yCount - 1].countOfBomb++;
-    if(map[xCount - 2][yCount - 2].isBomb == true)
-        map[xCount - 1][yCount - 1].countOfBomb++;
-    if(map[xCount - 2][yCount - 1].isBomb == true)
-        map[xCount - 1][yCount - 1].countOfBomb++;
-
-    for(var i = 1; i < xCount - 1; i++)
-    {
-        if(map[i - 1][yCount - 1].isBomb == true)
-            map[i][yCount - 1].countOfBomb++;
-        if(map[i - 1][yCount - 2].isBomb == true)
-            map[i][yCount - 1].countOfBomb++;
-        if(map[i][yCount - 2].isBomb == true)
-            map[i][yCount - 1].countOfBomb++;
-        if(map[i + 1][yCount - 2].isBomb == true)
-            map[i][yCount - 1].countOfBomb++;
-        if(map[i + 1][yCount - 1].isBomb == true)
-            map[i][yCount - 1].countOfBomb++;
-    }
-    if(map[1][0].isBomb == true)
-        map[0][yCount - 1].countOfBomb++;
-    if(map[1][1].isBomb == true)
-        map[0][yCount - 1].countOfBomb++;
-    if(map[0][1].isBomb == true)
-        map[0][yCount - 1].countOfBomb++;
-
-    //glowna petla
-    for(var i = 1; i < xCount - 1; i++)
-    {
-        for(var j = 1; j < yCount - 1; j++)
-        {
-            if(map[i - 1][j - 1].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i][j - 1].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i + 1][j - 1].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i + 1][j].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i + 1][j + 1].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i][j + 1].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i - 1][j + 1].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-            if(map[i - 1][j].isBomb == true)
-            {
-                map[i][j].countOfBomb++;
-            }
-        }
-    }
+    SetCount();
     //initial offset so does not start in middle.
-    var offset = -1.5;
-    var yOffset = -20;
+    let widthOfOnePlane = 1;
+    let xOffset =  - (xCount * widthOfOnePlane + (xCount - 1) * distance) / 4.5;
+    let yOffset = -13;
     for(var i = 0; i < xCount; i++){
         for(var j = 0; j < yCount; j++){
             var geometry = new THREE.PlaneGeometry();
             let material = new THREE.MeshBasicMaterial( {map: getTexture("texture9")});
             var mesh  = new THREE.Mesh(geometry, material);
             map[i][j].id = geometry.uuid;
-            mesh.position.x = distance * i + offset;
+            mesh.position.x = distance * i + xOffset;
             mesh.position.y = distance * j + yOffset;
             scene.add(mesh);
             objects.push(mesh);
@@ -212,7 +87,8 @@ function animate() {
         var geometry = new THREE.PlaneGeometry(10, 2);
         let materialWin = new THREE.MeshBasicMaterial( {map: getTexture("win")});
         var mesh  = new THREE.Mesh(geometry, materialWin);
-        mesh.position.x = 2;
+        mesh.position.x = 0.5;
+        mesh.position.y = 2;
         scene.add(mesh);
         ShowAllValues();
     }
@@ -260,7 +136,8 @@ function onDocumentMouseDown( event ) {
                 var geometry = new THREE.PlaneGeometry(10, 2);
                 let materialLost = new THREE.MeshBasicMaterial( {map: getTexture("lost")});
                 var mesh  = new THREE.Mesh(geometry, materialLost);
-                mesh.position.x = 2;
+                mesh.position.x = 0.5;
+                mesh.position.y = 2;
                 scene.add(mesh);
                 lost = true;
                 ShowAllValues();
@@ -276,6 +153,139 @@ function onDocumentMouseDown( event ) {
     
     }
 }
+
+function SetCount()
+{
+    //prawy górny brzeg
+    if(map[0][1].isBomb == true)
+        map[0][0].countOfBomb++;
+    if(map[1][1].isBomb == true)
+        map[0][0].countOfBomb++;
+    if(map[1][0].isBomb == true)
+        map[0][0].countOfBomb++;
+
+    //gorny brzeg
+    for(var i = 1; i < xCount - 1; i++)
+    {
+        if(map[i - 1][0].isBomb == true)
+            map[i][0].countOfBomb++;
+        if(map[i - 1][1].isBomb == true)
+            map[i][0].countOfBomb++;
+        if(map[i][1].isBomb == true)
+            map[i][0].countOfBomb++;
+        if(map[i + 1][1].isBomb == true)
+            map[i][0].countOfBomb++;
+        if(map[i + 1][0].isBomb == true)
+            map[i][0].countOfBomb++;
+    }
+    //lewy gorny brzeg
+    if(map[xCount - 2][0].isBomb == true)
+        map[xCount - 1][0].countOfBomb++;
+    if(map[xCount - 2][1].isBomb == true)
+        map[xCount - 1][0].countOfBomb++;
+    if(map[xCount - 1][1].isBomb == true)
+        map[xCount - 1][0].countOfBomb++;
+
+    // brzeg prawy
+    for(var j = 1; j < yCount - 1; j++)
+    {
+        if(map[0][j - 1].isBomb == true)
+            map[0][j].countOfBomb++;
+        if(map[1][j - 1].isBomb == true)
+            map[0][j].countOfBomb++;
+        if(map[1][j].isBomb == true)
+            map[0][j].countOfBomb++;
+        if(map[1][j + 1].isBomb == true)
+            map[0][j].countOfBomb++;
+        if(map[0][j + 1].isBomb == true)
+            map[0][j].countOfBomb++;
+    }
+    //lewy brzeg
+    for(var j = 1; j < yCount - 1; j++)
+    {
+        if(map[xCount - 1][j - 1].isBomb == true)
+            map[xCount - 1][j].countOfBomb++;
+        if(map[xCount - 2][j - 1].isBomb == true)
+            map[xCount - 1][j].countOfBomb++;
+        if(map[xCount - 2][j].isBomb == true)
+            map[xCount - 1][j].countOfBomb++;
+        if(map[xCount - 2][j + 1].isBomb == true)
+            map[xCount - 1][j].countOfBomb++;
+        if(map[xCount - 1][j + 1].isBomb == true)
+            map[xCount - 1][j].countOfBomb++;
+    }
+
+    //lewy dolny rog
+    if(map[xCount - 1][yCount - 2].isBomb == true)
+        map[xCount - 1][yCount - 1].countOfBomb++;
+    if(map[xCount - 2][yCount - 2].isBomb == true)
+        map[xCount - 1][yCount - 1].countOfBomb++;
+    if(map[xCount - 2][yCount - 1].isBomb == true)
+        map[xCount - 1][yCount - 1].countOfBomb++;
+
+    //dolny brzeg
+    for(var i = 1; i < xCount - 1; i++)
+    {
+        if(map[i - 1][yCount - 1].isBomb == true)
+            map[i][yCount - 1].countOfBomb++;
+        if(map[i - 1][yCount - 2].isBomb == true)
+            map[i][yCount - 1].countOfBomb++;
+        if(map[i][yCount - 2].isBomb == true)
+            map[i][yCount - 1].countOfBomb++;
+        if(map[i + 1][yCount - 2].isBomb == true)
+            map[i][yCount - 1].countOfBomb++;
+        if(map[i + 1][yCount - 1].isBomb == true)
+            map[i][yCount - 1].countOfBomb++;
+    }
+    //prawy dolny rog
+    if(map[1][yCount - 2].isBomb == true)
+        map[0][yCount - 1].countOfBomb++;
+    if(map[1][yCount - 1].isBomb == true)
+        map[0][yCount - 1].countOfBomb++;
+    if(map[0][yCount - 2].isBomb == true)
+        map[0][yCount - 1].countOfBomb++;
+
+    //glowna petla - srodek
+    for(var i = 1; i < xCount - 1; i++)
+    {
+        for(var j = 1; j < yCount - 1; j++)
+        {
+            if(map[i - 1][j - 1].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i][j - 1].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i + 1][j - 1].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i + 1][j].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i + 1][j + 1].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i][j + 1].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i - 1][j + 1].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+            if(map[i - 1][j].isBomb == true)
+            {
+                map[i][j].countOfBomb++;
+            }
+        }
+    }
+}
+
 function getTexture(value)
 {
     return new THREE.TextureLoader().load('textures/' + value + ".png", undefined, undefined, (err) =>
@@ -354,11 +364,43 @@ function AnyObjectLeft()
     }
     return isAnyLeft;
 }
-function restartGame()
+function ClearScene()
 {
     scene.remove.apply(scene, scene.children);
     lost = false;
     init();
     animate();
+}
+function restartGame()
+{
+    ClearScene();
+}
+function easyLevel()
+{
+    SetGlobalVariables(4,4,2);
+    ClearScene();
+}
+
+function middleLevel()
+{
+    SetGlobalVariables(8,8,10);
+    ClearScene();
+}
+
+function highLevel()
+{
+    SetGlobalVariables(12,12,25);
+    ClearScene();
+}
+
+function SetGlobalVariables(x, y, bombs)
+{
+    countOfBombs = bombs;
+    xCount = x;
+    yCount = y;
+    map = new Array(xCount);
+    for (var i = 0; i < map.length; i++) {
+        map[i] = new Array(yCount);
+    }
 }
         
